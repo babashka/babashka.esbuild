@@ -1,0 +1,11 @@
+{:paths ["src"]
+ :deps {io.github.babashka/libesbuild {:local/root "libesbuild"}}
+ :tasks
+ {natives {:doc "Builds the shim for this platform into libesbuild/resources"
+           :task (shell "libesbuild/build.sh")}
+  test {:doc "Runs the tests on babashka"
+        :depends [natives]
+        :extra-paths ["test"]
+        :requires ([clojure.test :as t] [babashka.esbuild-test])
+        :task (let [{:keys [fail error]} (t/run-tests 'babashka.esbuild-test)]
+                (System/exit (if (pos? (+ fail error)) 1 0)))}}}

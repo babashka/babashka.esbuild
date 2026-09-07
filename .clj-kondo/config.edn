@@ -1,0 +1,1 @@
+{:config-paths ["imports/babashka/ffi" "imports/babashka/fs"]}
