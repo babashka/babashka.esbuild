@@ -36,7 +36,7 @@ io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
 
 `io.github.babashka/libesbuild` is a jar of esbuild shared libraries, one per
 platform, published to Clojars. Its version is the esbuild version it wraps
-plus a shim number, so `0.28.2-1` holds esbuild v0.28.2. `babashka.esbuild`
+plus a shim number, so `0.28.2-2` holds esbuild v0.28.2. `babashka.esbuild`
 depends on it, so a release of this library pins one esbuild.
 
 The operating system loads a shared library from a file, so the first call

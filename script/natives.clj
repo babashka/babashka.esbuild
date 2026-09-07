@@ -52,6 +52,13 @@
     (fs/delete-if-exists (fs/path dir (str/replace (str out) #"\.\w+$" ".h")))
     (println " " (format "%.1f MB" (/ (fs/size (fs/path dir out)) 1048576.0)))))
 
+(defn- write-version!
+  "The cache directory is named after this, so it travels with the shims."
+  [version]
+  (let [f (fs/path dir "resources" "babashka" "esbuild" "version")]
+    (fs/create-dirs (fs/parent f))
+    (spit (fs/file f) version)))
+
 (defn build
   "Builds the esbuild shim into libesbuild/resources."
   {:org.babashka/cli {:spec {:all {:desc "Cross compile every platform, needs zig"
@@ -63,4 +70,5 @@
   (let [version (esbuild-version)
         chosen (if all targets (filter #(= (host-platform) (:platform %)) targets))]
     (println "esbuild" version)
-    (run! #(build-target % version) chosen)))
+    (run! #(build-target % version) chosen)
+    (write-version! version)))

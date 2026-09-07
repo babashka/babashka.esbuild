@@ -4,7 +4,7 @@
             [deps-deploy.deps-deploy :as dd]))
 
 (def lib 'io.github.babashka/libesbuild)
-(def version "0.28.2-1")
+(def version "0.28.2-2")
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
 (def basis (delay (b/create-basis {:project "deps.edn"})))
@@ -65,7 +65,8 @@
                         (enumeration-seq (.entries jar)))
           under (fn [n] (and (str/starts-with? n "babashka/esbuild/")
                              (not (str/ends-with? n "/"))))
-          unexpected (sort (remove shared-libraries (filter under (keys entries))))
+          unexpected (sort (remove (conj shared-libraries "babashka/esbuild/version")
+                                   (filter under (keys entries))))
           missing (sort (remove entries shared-libraries))
           empty-ones (sort (filter #(zero? (get entries % 0)) shared-libraries))]
       (when (seq missing)
@@ -101,6 +102,7 @@
   (b/copy-dir {:src-dirs ["resources"] :target-dir class-dir})
   (b/copy-file {:src "LICENSE-esbuild.md"
                 :target (str class-dir "/META-INF/licenses/esbuild/LICENSE.md")})
+  (spit (java.io.File. class-dir "babashka/esbuild/version") version)
   (b/write-pom {:class-dir class-dir
                 :lib lib
                 :version version

@@ -6,7 +6,10 @@
             [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(def natives-version "0.28.2-1")
+(def natives-version
+  (if-let [r (io/resource "babashka/esbuild/version")]
+    (str/trim (slurp r))
+    "dev"))
 
 (defn lib-name []
   (let [os (str/lower-case (System/getProperty "os.name"))
