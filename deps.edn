@@ -1,14 +1,11 @@
 {:paths ["src"]
  :deps {io.github.babashka/libesbuild {:mvn/version "0.28.2-1"}
-        ;; babashka has this built in. It is not released, so a JVM consumer
-        ;; adds it too; a git dep cannot go in the pom.
         io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
                                 :git/sha "3917f39ededc25372b78f91b5ef9f409f522eeba"}
         babashka/fs {:mvn/version "0.5.34"}
         org.babashka/json {:mvn/version "0.1.6"}}
  :aliases
- {;; Use the shim built by bb natives instead of the released jar.
-  :local {:override-deps {io.github.babashka/libesbuild {:local/root "libesbuild"}}}
+ {:local {:override-deps {io.github.babashka/libesbuild {:local/root "libesbuild"}}}
 
   :test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
