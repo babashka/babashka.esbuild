@@ -10,7 +10,7 @@ Esbuild runs in the babashka process through
 
 ## Status
 
-Experimental because this is a new library which needs some rounds of feedback first, before we can promise a stable API.
+Experimental. The API may change as we gather feedback.
 
 ## Install
 
@@ -25,7 +25,7 @@ macOS, Linux and Windows on x86_64 and aarch64. See [How esbuild
 ships](#how-esbuild-ships).
 
 On the JVM, start with `--enable-native-access=ALL-UNNAMED` and add
-`babashka.ffi`, which babashka has built in and which is not released yet:
+`babashka.ffi` as a Git dependency. Babashka includes it:
 
 ```clojure
 io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
@@ -34,22 +34,7 @@ io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
 
 ## How esbuild ships
 
-Esbuild is a Go program and releases executables only. There is no libesbuild
-to link against and no C API, so this project builds one. `libesbuild/shim.go`
-wraps the esbuild Go API in four C functions and Go compiles it with
-`-buildmode=c-shared`:
-
-```c
-char *esbuild_version(void);
-char *esbuild_transform(const char *code, const char *options_json);
-char *esbuild_build(const char *options_json);
-void  esbuild_free(char *p);
-```
-
-Options and results cross as JSON, which keeps the C interface at four
-functions while esbuild keeps adding options.
-
-`io.github.babashka/libesbuild` is a jar of those shared libraries, one per
+`io.github.babashka/libesbuild` is a jar of esbuild shared libraries, one per
 platform, published to Clojars. Its version is the esbuild version it wraps
 plus a shim number, so `0.28.2-1` holds esbuild v0.28.2. `babashka.esbuild`
 depends on it, so a release of this library pins one esbuild.
@@ -82,10 +67,10 @@ instead of changing a file another process may be using.
 
 Pass `:write true` with `:outfile` or `:outdir` to write to disk instead.
 
-Options are the esbuild options as kebab-case keywords with keyword values.
+Use kebab-case keywords for option names. Enum values can also be keywords.
 `:entry-points` reaches esbuild as `entryPoints`.
 
-Errors throw. The messages are in the ex-data:
+Build and transform errors throw exceptions with error details in `ex-data`:
 
 ```clojure
 (esbuild/transform "let = ;")

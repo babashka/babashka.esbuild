@@ -6,6 +6,22 @@
 - [zig](https://ziglang.org) cross compiles the linux and windows shims. Only
   `bb natives --all` needs it: `brew install zig`.
 
+## C interface
+
+Esbuild releases executables. This project builds a shared library from its
+Go API. `libesbuild/shim.go` wraps the API in four C functions, compiled with
+`-buildmode=c-shared`:
+
+```c
+char *esbuild_version(void);
+char *esbuild_transform(const char *code, const char *options_json);
+char *esbuild_build(const char *options_json);
+void  esbuild_free(char *p);
+```
+
+Options and results use JSON, so new esbuild options do not require new C
+functions.
+
 ## Build and test
 
 Build the shim for your machine, then run the tests on both hosts:
