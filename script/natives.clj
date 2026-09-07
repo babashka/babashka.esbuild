@@ -37,10 +37,7 @@
          "-"
          (if (#{"aarch64" "arm64"} arch) "aarch64" "x86_64"))))
 
-(defn build
-  "Builds one target. On the host platform the system C compiler is enough, so
-  cross compilers stay out of the way."
-  [{:keys [platform lib goos goarch cc]} version]
+(defn build-target [{:keys [platform lib goos goarch cc]} version]
   (let [out (fs/path "resources" "babashka" "esbuild" platform lib)
         host? (= platform (host-platform))]
     (fs/create-dirs (fs/parent (fs/path dir out)))
@@ -54,13 +51,15 @@
     (fs/delete-if-exists (fs/path dir (str/replace (str out) #"\.\w+$" ".h")))
     (println " " (format "%.1f MB" (/ (fs/size (fs/path dir out)) 1048576.0)))))
 
-(defn -main [& args]
+(defn build
+  "Builds the esbuild shim into libesbuild/resources."
+  {:org.babashka/cli {:spec {:all {:desc "Cross compile every platform, needs zig"
+                                   :coerce :boolean}}}}
+  [{:keys [all]}]
+  (when (and all (not (fs/which "zig")))
+    (println "--all needs zig for the linux and windows targets: brew install zig")
+    (System/exit 1))
   (let [version (esbuild-version)
-        chosen (if (some #{"--all"} args)
-                 targets
-                 (filter #(= (host-platform) (:platform %)) targets))]
-    (when (and (some #{"--all"} args) (not (fs/which "zig")))
-      (println "--all needs zig for the linux and windows targets: brew install zig")
-      (System/exit 1))
+        chosen (if all targets (filter #(= (host-platform) (:platform %)) targets))]
     (println "esbuild" version)
-    (run! #(build % version) chosen)))
+    (run! #(build-target % version) chosen)))

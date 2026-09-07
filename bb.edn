@@ -1,10 +1,10 @@
-{:paths ["src" "script"]
- :deps {io.github.babashka/libesbuild {:local/root "libesbuild"}
-        org.babashka/json {:mvn/version "0.1.6"}}
+{:paths ["script"]
+ :deps {io.github.babashka/esbuild {:local/root "."}
+        io.github.babashka/libesbuild {:local/root "libesbuild"}}
  :tasks
- {natives {:doc "Builds the shim for this machine. Pass --all to cross compile every platform"
-           :requires ([natives :as n])
-           :task (apply n/-main *command-line-args*)}
+ {natives {:doc "Builds the shim into libesbuild/resources"
+           :requires ([natives])
+           :exec-fn natives/build}
   test {:doc "Runs the tests on babashka"
         :depends [natives]
         :extra-paths ["test"]
