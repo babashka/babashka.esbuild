@@ -24,8 +24,7 @@ jobs:
           cli: latest
           bb: latest
       - name: Build the shim
-        shell: bash
-        run: libesbuild/build.sh
+        run: bb natives
       - name: Test on babashka
         run: bb test
       - name: Test on the JVM

@@ -7,6 +7,10 @@ Bundle and transform JavaScript, TypeScript, JSX and CSS from
 Esbuild runs in the babashka process through
 [babashka.ffi](https://github.com/babashka/ffi). It does not use or need Node.js.
 
+## Status
+
+Experimental because this is a new library which needs some rounds of feedback first, before we can promise a stable API.
+
 ## Install
 
 Add the library to `bb.edn` or `deps.edn`:
@@ -78,10 +82,15 @@ Build the shim for your platform, then run the tests on both hosts:
     bb test
     clojure -M:local:test
 
-`libesbuild/build.sh` writes into `libesbuild/resources`. The `:local` alias
-and `bb.edn` point at that directory instead of the released jar. The
-published jar carries all five platforms and is built by the `natives`
-workflow.
+`bb natives` writes into `libesbuild/resources`. The `:local` alias and
+`bb.edn` point at that directory instead of the released jar.
+
+`bb natives --all` cross compiles all five platforms, which needs
+[zig](https://ziglang.org) for the linux and windows shims:
+
+    brew install zig
+    bb natives --all
+    cd libesbuild && clojure -T:build jar
 
 Release the natives by pushing a `libesbuild-<version>` tag, and the library
 by pushing a `v<version>` tag.
