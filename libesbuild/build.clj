@@ -27,3 +27,10 @@
     (dd/deploy {:installer :remote
                 :artifact jar-file
                 :pom-file (b/pom-path {:lib lib :class-dir class-dir})})))
+
+(defn install [_]
+  (b/install {:basis @basis
+              :lib lib
+              :version version
+              :jar-file (format "target/%s-%s.jar" (name lib) version)
+              :class-dir class-dir}))

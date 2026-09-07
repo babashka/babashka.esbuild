@@ -4,26 +4,31 @@ Bundle and transform JavaScript, TypeScript, JSX and CSS from
 [babashka](https://github.com/babashka/babashka) with
 [esbuild](https://esbuild.github.io/).
 
-esbuild runs in the babashka process through
-[babashka.ffi](https://github.com/babashka/ffi). There is no subprocess and no
-Node.js.
+Esbuild runs in the babashka process through
+[babashka.ffi](https://github.com/babashka/ffi). It does not use or need Node.js.
 
 Status: experimental, because `babashka.ffi` is experimental.
 
 ## Install
 
-Add the library and the natives to `bb.edn` or `deps.edn`:
+Add the library to `bb.edn` or `deps.edn`:
 
 ```clojure
-{:deps {io.github.babashka/babashka.esbuild {:mvn/version "0.1.0"}
-        io.github.babashka/libesbuild {:mvn/version "0.28.2-1"}}}
+{:deps {io.github.babashka/esbuild {:mvn/version "0.1.0"}}}
 ```
 
-`libesbuild` carries the compiled esbuild for macOS, Linux and Windows on
-x86_64 and aarch64. The first call unpacks the one for your platform into
+That pulls in `io.github.babashka/libesbuild`, which carries the compiled
+esbuild for macOS, Linux and Windows on x86_64 and aarch64. The first call
+unpacks the one for your platform into
 `<xdg-cache>/babashka/esbuild/<version>/`. Later runs load it from there.
 
-On the JVM, start with `--enable-native-access=ALL-UNNAMED`.
+On the JVM, start with `--enable-native-access=ALL-UNNAMED` and add
+`babashka.ffi`, which babashka has built in and which is not released yet:
+
+```clojure
+io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
+                        :git/sha "3917f39ededc25372b78f91b5ef9f409f522eeba"}
+```
 
 ## Usage
 
@@ -73,13 +78,15 @@ Build the shim for your platform, then run the tests on both hosts:
 
     bb natives
     bb test
-    clojure -M:test
+    clojure -M:local:test
 
-`libesbuild/build.sh` writes into `libesbuild/resources`, which the top level
-`deps.edn` picks up with `:local/root`. The published jar carries all five
-platforms and is built by the `natives` workflow.
+`libesbuild/build.sh` writes into `libesbuild/resources`. The `:local` alias
+and `bb.edn` point at that directory instead of the released jar. The
+published jar carries all five platforms and is built by the `natives`
+workflow.
 
-Release the natives by pushing a `libesbuild-<version>` tag.
+Release the natives by pushing a `libesbuild-<version>` tag, and the library
+by pushing a `v<version>` tag.
 
 ## License
 

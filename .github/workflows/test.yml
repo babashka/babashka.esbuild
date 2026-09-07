@@ -29,4 +29,4 @@ jobs:
       - name: Test on babashka
         run: bb test
       - name: Test on the JVM
-        run: clojure -M:test
+        run: clojure -M:local:test
