@@ -7,8 +7,6 @@ Bundle and transform JavaScript, TypeScript, JSX and CSS from
 Esbuild runs in the babashka process through
 [babashka.ffi](https://github.com/babashka/ffi). It does not use or need Node.js.
 
-Status: experimental, because `babashka.ffi` is experimental.
-
 ## Install
 
 Add the library to `bb.edn` or `deps.edn`:

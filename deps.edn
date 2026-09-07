@@ -1,7 +1,7 @@
 {:paths ["src"]
  :deps {io.github.babashka/libesbuild {:mvn/version "0.28.2-1"}
         babashka/fs {:mvn/version "0.5.34"}
-        cheshire/cheshire {:mvn/version "5.13.0"}}
+        org.babashka/json {:mvn/version "0.1.6"}}
  :aliases
  {;; Use the shim built by libesbuild/build.sh instead of the released jar.
   :local {:override-deps {io.github.babashka/libesbuild {:local/root "libesbuild"}}}
