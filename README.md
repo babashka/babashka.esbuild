@@ -22,8 +22,7 @@ Add the library to `bb.edn` or `deps.edn`:
 ```
 
 That pulls in `io.github.babashka/libesbuild`, which carries esbuild for
-macOS, Linux and Windows on x86_64 and aarch64. See [How esbuild
-ships](#how-esbuild-ships).
+macOS, Linux and Windows on x86_64 and aarch64. See [Distribution](#distribution).
 
 `babashka.ffi` comes with it. Babashka includes it as well.
 
