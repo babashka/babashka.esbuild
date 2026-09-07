@@ -52,6 +52,7 @@
   (println "installed" (str lib) version "to" (m2-dir)))
 
 (defn deploy [_]
+  (jar nil)
   (println "deploying" (str lib) version "to Clojars")
   (dd/deploy {:installer :remote
               :artifact jar-file

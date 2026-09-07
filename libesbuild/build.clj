@@ -33,9 +33,24 @@
 (defn- built-from-esbuild?
   "The esbuild version is linked into each shared library, so a stale binary
   from an earlier release does not carry the one this jar claims."
-  [^java.util.jar.JarFile jar entry-name]
-  (with-open [in (.getInputStream jar (.getEntry jar entry-name))]
+  [in]
+  (with-open [in in]
     (str/includes? (slurp in :encoding "ISO-8859-1") esbuild-version)))
+
+(defn- natives-ready? []
+  (every? (fn [n]
+            (let [f (java.io.File. (str "resources/" n))]
+              (and (.exists f)
+                   (pos? (.length f))
+                   (built-from-esbuild? (java.io.FileInputStream. f)))))
+          shared-libraries))
+
+(defn- ensure-natives! []
+  (when-not (natives-ready?)
+    (println "shims missing or stale, running bb natives --all")
+    (let [{:keys [exit]} (b/process {:command-args ["bb" "natives" "--all"] :dir ".."})]
+      (when-not (zero? exit)
+        (throw (ex-info "bb natives --all failed" {:exit exit}))))))
 
 (defn- verify-jar!
   "Clojars keeps every version it accepts, so a jar that is missing a platform
@@ -68,7 +83,9 @@
                              (str/join ", " unexpected)
                              "\nDelete libesbuild/resources and run bb natives --all")
                         {:unexpected unexpected})))
-      (let [stale (sort (remove #(built-from-esbuild? jar %) shared-libraries))]
+      (let [stale (sort (remove #(built-from-esbuild?
+                                  (.getInputStream jar (.getEntry jar %)))
+                                shared-libraries))]
         (when (seq stale)
           (throw (ex-info (str "these shared libraries were not built from esbuild "
                                esbuild-version ": " (str/join ", " stale)
@@ -80,6 +97,7 @@
   (println "deleted target"))
 
 (defn jar [_]
+  (ensure-natives!)
   (b/copy-dir {:src-dirs ["resources"] :target-dir class-dir})
   (b/copy-file {:src "LICENSE-esbuild.md"
                 :target (str class-dir "/META-INF/licenses/esbuild/LICENSE.md")})
@@ -111,7 +129,7 @@
   (println "installed" (str lib) version "to" (m2-dir)))
 
 (defn deploy [_]
-  (verify-jar!)
+  (jar nil)
   (println "deploying" (str lib) version "to Clojars")
   (dd/deploy {:installer :remote
               :artifact jar-file

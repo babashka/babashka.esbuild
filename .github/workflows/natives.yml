@@ -42,10 +42,6 @@ jobs:
           curl -sL https://ziglang.org/download/$ZIG_VERSION/zig-aarch64-macos-$ZIG_VERSION.tar.xz \
             | tar -xJ -C ~/zig --strip-components=1
       - run: echo "$HOME/zig" >> $GITHUB_PATH
-      - name: Build every shim
-        run: bb natives --all
-      - name: List what the jar will carry
-        run: find libesbuild/resources -type f | sort
       - name: Build the jar
         run: cd libesbuild && clojure -T:build jar
       - uses: actions/upload-artifact@v4

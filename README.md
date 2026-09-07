@@ -34,7 +34,7 @@ io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
 
 ## How esbuild ships
 
-esbuild is a Go program and releases executables only. There is no libesbuild
+Esbuild is a Go program and releases executables only. There is no libesbuild
 to link against and no C API, so this project builds one. `libesbuild/shim.go`
 wraps the esbuild Go API in four C functions and Go compiles it with
 `-buildmode=c-shared`:

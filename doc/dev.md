@@ -32,24 +32,23 @@ sets the oldest linux the library loads on.
 Push a `libesbuild-<version>` tag to release the natives, and a `v<version>`
 tag to release the library.
 
-To release from your own machine instead, build the natives first, because the
-library pom names them:
-
-    bb natives --all
-    cd libesbuild
-    clojure -T:build jar
-    clojure -T:build install
-
-`clojure -T:build jar` prints the platforms it packed. Clojars keeps every
-version it accepts, so read that line and check it names all five before you
-deploy both:
+To release from your own machine instead, deploy the natives first, because
+the library pom names them:
 
     export CLOJARS_USERNAME=<user>
     export CLOJARS_PASSWORD=<token from https://clojars.org/tokens>
+    cd libesbuild
     clojure -T:build deploy
     cd ..
-    clojure -T:build jar
     clojure -T:build deploy
+
+`deploy` builds the jar, and the natives jar builds any shim that is missing
+or was built from another esbuild. It refuses to deploy a jar that lacks a
+platform, carries an empty or stale shared library, or carries one it does not
+expect. Clojars keeps every version it accepts, so those checks are the last
+line before it is permanent.
+
+Use `clojure -T:build install` for a local m2 install instead.
 
 ## Lint
 
