@@ -20,10 +20,9 @@ Add the library to `bb.edn` or `deps.edn`:
 {:deps {io.github.babashka/esbuild {:mvn/version "0.1.0"}}}
 ```
 
-That pulls in `io.github.babashka/libesbuild`, which carries the compiled
-esbuild for macOS, Linux and Windows on x86_64 and aarch64. The first call
-unpacks the one for your platform into
-`<xdg-cache>/babashka/esbuild/<version>/`. Later runs load it from there.
+That pulls in `io.github.babashka/libesbuild`, which carries esbuild for
+macOS, Linux and Windows on x86_64 and aarch64. See [How esbuild
+ships](#how-esbuild-ships).
 
 On the JVM, start with `--enable-native-access=ALL-UNNAMED` and add
 `babashka.ffi`, which babashka has built in and which is not released yet:
@@ -32,6 +31,34 @@ On the JVM, start with `--enable-native-access=ALL-UNNAMED` and add
 io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
                         :git/sha "3917f39ededc25372b78f91b5ef9f409f522eeba"}
 ```
+
+## How esbuild ships
+
+esbuild is a Go program and releases executables only. There is no libesbuild
+to link against and no C API, so this project builds one. `libesbuild/shim.go`
+wraps the esbuild Go API in four C functions and Go compiles it with
+`-buildmode=c-shared`:
+
+```c
+char *esbuild_version(void);
+char *esbuild_transform(const char *code, const char *options_json);
+char *esbuild_build(const char *options_json);
+void  esbuild_free(char *p);
+```
+
+Options and results cross as JSON, which keeps the C interface at four
+functions while esbuild keeps adding options.
+
+`io.github.babashka/libesbuild` is a jar of those shared libraries, one per
+platform, published to Clojars. Its version is the esbuild version it wraps
+plus a shim number, so `0.28.2-1` holds esbuild v0.28.2. `babashka.esbuild`
+depends on it, so a release of this library pins one esbuild.
+
+The operating system loads a shared library from a file, so the first call
+unpacks the one for your platform into
+`<xdg-cache>/babashka/esbuild/<libesbuild version>/`. Later runs load it from
+there. The version sits in the path, so an upgrade writes a new directory
+instead of changing a file another process may be using.
 
 ## Usage
 
