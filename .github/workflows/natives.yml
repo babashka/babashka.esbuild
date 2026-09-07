@@ -7,6 +7,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  ZIG_VERSION: "0.16.0"
+
 jobs:
   # zig cross compiles the linux and windows shims, and Xcode covers both mac
   # architectures, so one macOS runner builds the whole jar.
@@ -22,11 +25,23 @@ jobs:
         with:
           distribution: temurin
           java-version: "25"
-      - uses: DeLaGuardo/setup-clojure@13.0
+      - uses: DeLaGuardo/setup-clojure@3.7.0
         with:
           cli: latest
           bb: latest
-      - run: brew install zig
+      - name: Cache zig
+        id: zig
+        uses: actions/cache@v4
+        with:
+          path: ~/zig
+          key: zig-${{ env.ZIG_VERSION }}-macos-aarch64
+      - name: Install zig
+        if: steps.zig.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/zig
+          curl -sL https://ziglang.org/download/$ZIG_VERSION/zig-aarch64-macos-$ZIG_VERSION.tar.xz \
+            | tar -xJ -C ~/zig --strip-components=1
+      - run: echo "$HOME/zig" >> $GITHUB_PATH
       - name: Build every shim
         run: bb natives --all
       - name: List what the jar will carry
