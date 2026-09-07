@@ -1,7 +1,6 @@
 {:paths ["src"]
  :deps {io.github.babashka/libesbuild {:mvn/version "0.28.2-2"}
-        io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
-                                :git/sha "3917f39ededc25372b78f91b5ef9f409f522eeba"}
+        io.github.babashka/ffi {:git/sha "3917f39ededc25372b78f91b5ef9f409f522eeba"}
         babashka/fs {:mvn/version "0.5.34"}
         org.babashka/json {:mvn/version "0.1.6"}}
  :aliases

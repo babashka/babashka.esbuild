@@ -17,20 +17,17 @@ Experimental. The API may change as we gather feedback.
 Add the library to `bb.edn` or `deps.edn`:
 
 ```clojure
-{:deps {io.github.babashka/esbuild {:mvn/version "0.1.0"}}}
+{:deps {io.github.babashka/babashka.esbuild
+        {:git/sha "f9e39b6914c9028b8224ffa4ea1a9c781f09f3ef"}}}
 ```
 
 That pulls in `io.github.babashka/libesbuild`, which carries esbuild for
 macOS, Linux and Windows on x86_64 and aarch64. See [How esbuild
 ships](#how-esbuild-ships).
 
-On the JVM, start with `--enable-native-access=ALL-UNNAMED` and add
-`babashka.ffi` as a Git dependency. Babashka includes it:
+`babashka.ffi` comes with it. Babashka includes it as well.
 
-```clojure
-io.github.babashka/ffi {:git/url "https://github.com/babashka/ffi"
-                        :git/sha "3917f39ededc25372b78f91b5ef9f409f522eeba"}
-```
+On the JVM, start with `--enable-native-access=ALL-UNNAMED`.
 
 ## How esbuild ships
 

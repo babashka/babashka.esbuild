@@ -48,6 +48,8 @@ sets the oldest linux the library loads on.
 Push a `libesbuild-<version>` tag to release the natives, and a `v<version>`
 tag to release the library.
 
+The library itself is a git dep for now, so only `libesbuild` goes to Clojars.
+
 To release from your own machine instead, deploy the natives first, because
 the library pom names them:
 
