@@ -44,6 +44,7 @@
   (println "wrote" jar-file (str "(" (size jar-file) ")")))
 
 (defn install [_]
+  (jar nil)
   (b/install {:basis @basis
               :lib lib
               :version version

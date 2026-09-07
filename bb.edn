@@ -5,6 +5,12 @@
  {natives {:doc "Builds the shim into libesbuild/resources"
            :requires ([natives])
            :exec-fn natives/build}
+  publish:libesbuild {:doc "Deploys libesbuild to Clojars"
+                      :task (shell {:dir "libesbuild"} "clojure -T:build deploy")}
+  publish:esbuild {:doc "Deploys babashka.esbuild to Clojars"
+                   :task (shell "clojure -T:build deploy")}
+  install:libesbuild {:doc "Installs libesbuild into the local m2"
+                      :task (shell {:dir "libesbuild"} "clojure -T:build install")}
   test {:doc "Runs the tests on babashka"
         :depends [natives]
         :extra-paths ["test"]

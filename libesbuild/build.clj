@@ -121,6 +121,7 @@
   (println "platforms:" (count shared-libraries) "of" (count shared-libraries)))
 
 (defn install [_]
+  (jar nil)
   (b/install {:basis @basis
               :lib lib
               :version version
