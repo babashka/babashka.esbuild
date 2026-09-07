@@ -29,7 +29,7 @@ ships](#how-esbuild-ships).
 
 On the JVM, start with `--enable-native-access=ALL-UNNAMED`.
 
-## How esbuild ships
+## Distribution
 
 `io.github.babashka/libesbuild` is a jar of esbuild shared libraries, one per
 platform, published to Clojars. Its version is the esbuild version it wraps
