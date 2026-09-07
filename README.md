@@ -1,8 +1,9 @@
 # babashka.esbuild
 
-Bundle and transform JavaScript, TypeScript, JSX and CSS from
-[babashka](https://github.com/babashka/babashka) with
-[esbuild](https://esbuild.github.io/).
+Use [esbuild](https://esbuild.github.io/) from
+[babashka](https://github.com/babashka/babashka) and the JVM.
+
+Bundle and transform JavaScript, TypeScript, JSX and CSS.
 
 Esbuild runs in the babashka process through
 [babashka.ffi](https://github.com/babashka/ffi). It does not use or need Node.js.
