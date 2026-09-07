@@ -76,24 +76,7 @@ JavaScript file:
 
 ## Development
 
-Build the shim for your platform, then run the tests on both hosts:
-
-    bb natives
-    bb test
-    clojure -M:local:test
-
-`bb natives` writes into `libesbuild/resources`. The `:local` alias and
-`bb.edn` point at that directory instead of the released jar.
-
-`bb natives --all` cross compiles all five platforms, which needs
-[zig](https://ziglang.org) for the linux and windows shims:
-
-    brew install zig
-    bb natives --all
-    cd libesbuild && clojure -T:build jar
-
-Release the natives by pushing a `libesbuild-<version>` tag, and the library
-by pushing a `v<version>` tag.
+See [doc/dev.md](doc/dev.md).
 
 ## License
 
