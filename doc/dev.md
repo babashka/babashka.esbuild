@@ -40,11 +40,9 @@ library pom names them:
     clojure -T:build jar
     clojure -T:build install
 
-Check the jar before you send it. Clojars keeps every version it accepts:
-
-    unzip -l target/libesbuild-*.jar | grep -E "dylib|\.so|\.dll"
-
-Five files, one for each platform. Then deploy both:
+`clojure -T:build jar` prints the platforms it packed. Clojars keeps every
+version it accepts, so read that line and check it names all five before you
+deploy both:
 
     export CLOJARS_USERNAME=<user>
     export CLOJARS_PASSWORD=<token from https://clojars.org/tokens>
