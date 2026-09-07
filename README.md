@@ -5,7 +5,7 @@ Use [esbuild](https://esbuild.github.io/) from
 
 Bundle and transform JavaScript, TypeScript, JSX and CSS.
 
-Esbuild runs babashka or on the JVM through
+This library runs on babashka or on the JVM through
 [babashka.ffi](https://github.com/babashka/ffi). It does not use or need Node.js.
 
 ## Status
