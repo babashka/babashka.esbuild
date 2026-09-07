@@ -40,6 +40,7 @@
 (defn build-target [{:keys [platform lib goos goarch cc]} version]
   (let [out (fs/path "resources" "babashka" "esbuild" platform lib)
         host? (= platform (host-platform))]
+    (fs/delete-tree (fs/parent (fs/path dir out)))
     (fs/create-dirs (fs/parent (fs/path dir out)))
     (println "building" platform)
     (p/shell {:dir dir

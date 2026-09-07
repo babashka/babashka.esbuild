@@ -20,12 +20,22 @@
                       (str ".m2/repository/" (str/replace (namespace lib) "." "/")
                            "/" (name lib) "/" version))))
 
+(def esbuild-version
+  (str "v" (first (str/split version #"-"))))
+
 (def shared-libraries
   #{"babashka/esbuild/darwin-aarch64/libesbuild.dylib"
     "babashka/esbuild/darwin-x86_64/libesbuild.dylib"
     "babashka/esbuild/linux-aarch64/libesbuild.so"
     "babashka/esbuild/linux-x86_64/libesbuild.so"
     "babashka/esbuild/windows-x86_64/esbuild.dll"})
+
+(defn- built-from-esbuild?
+  "The esbuild version is linked into each shared library, so a stale binary
+  from an earlier release does not carry the one this jar claims."
+  [^java.util.jar.JarFile jar entry-name]
+  (with-open [in (.getInputStream jar (.getEntry jar entry-name))]
+    (str/includes? (slurp in :encoding "ISO-8859-1") esbuild-version)))
 
 (defn- verify-jar!
   "Clojars keeps every version it accepts, so a jar that is missing a platform
@@ -38,6 +48,9 @@
     (let [entries (into {} (map (juxt #(.getName ^java.util.jar.JarEntry %)
                                       #(.getSize ^java.util.jar.JarEntry %)))
                         (enumeration-seq (.entries jar)))
+          under (fn [n] (and (str/starts-with? n "babashka/esbuild/")
+                             (not (str/ends-with? n "/"))))
+          unexpected (sort (remove shared-libraries (filter under (keys entries))))
           missing (sort (remove entries shared-libraries))
           empty-ones (sort (filter #(zero? (get entries % 0)) shared-libraries))]
       (when (seq missing)
@@ -50,7 +63,17 @@
         (throw (ex-info (str "jar has empty shared libraries: "
                              (str/join ", " empty-ones))
                         {:empty empty-ones})))
-      (sort (keys (select-keys entries shared-libraries))))))
+      (when (seq unexpected)
+        (throw (ex-info (str "jar carries files it should not: "
+                             (str/join ", " unexpected)
+                             "\nDelete libesbuild/resources and run bb natives --all")
+                        {:unexpected unexpected})))
+      (let [stale (sort (remove #(built-from-esbuild? jar %) shared-libraries))]
+        (when (seq stale)
+          (throw (ex-info (str "these shared libraries were not built from esbuild "
+                               esbuild-version ": " (str/join ", " stale)
+                               "\nDelete libesbuild/resources and run bb natives --all")
+                          {:stale stale :expected esbuild-version})))))))
 
 (defn clean [_]
   (b/delete {:path "target"})
