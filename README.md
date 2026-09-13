@@ -54,17 +54,37 @@ instead of changing a file another process may be using.
 ;;=> {:code "let f=e=>e*2;\n"}
 ```
 
+Let's create some dummy source to play with:
+
+```clojure
+(spit "foobar-main.tsx"
+      (str "const App = (): JSX.Element => <div>Hello World</div>;\n"
+           "\n"
+           "console.log(App());\n"))
+```
+
 `build` bundles entry points and returns the output in memory:
 
 ```clojure
-(esbuild/build {:entry-points ["src/main.tsx"] :bundle true :format :esm :minify true})
-;;=> {:outputs [{:path "<stdout>" :contents "..."}]}
+(esbuild/build {:entry-points ["foobar-main.tsx"] :bundle true :format :esm :minify true})
+;;=> {:outputs [{:path "<stdout>", :contents "var o=()=>React.createElement(\"div\",null,\"Hello World\");console.log(o());\n"}]}
 ```
 
 Pass `:write true` with `:outfile` or `:outdir` to write to disk instead.
 
 Use kebab-case keywords for option names. Enum values can also be keywords.
 `:entry-points` reaches esbuild as `entryPoints`.
+
+Optionally specify `:metafile true` to generate `:metafile` metadata about `build`.
+Generate a text report on this JSON string value via `analyze-metafile`:
+
+```clojure
+(def build-result (esbuild/build {:entry-points ["foobar-main.tsx"] :bundle true :metafile true}))
+(println (:report (esbuild/analyze-metafile (:metafile build-result) {:verbose true})))
+
+  foobar-main.js ───── 149b ── 100.0%
+   └ foobar-main.tsx ─ 113b ─── 75.8%
+```
 
 Build and transform errors throw exceptions with error details in `ex-data`:
 

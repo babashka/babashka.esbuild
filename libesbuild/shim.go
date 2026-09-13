@@ -67,6 +67,9 @@ type options struct {
 	Write       bool              `json:"write"`
 	External    []string          `json:"external"`
 	Alias       map[string]string `json:"alias"`
+	Metafile    bool              `json:"metafile"`
+	// analyze metafile
+	Verbose bool `json:"verbose"`
 }
 
 type message struct {
@@ -87,6 +90,8 @@ type result struct {
 	OutputFiles []outputFile `json:"outputFiles,omitempty"`
 	Errors      []message    `json:"errors"`
 	Warnings    []message    `json:"warnings"`
+	Metafile    string       `json:"metafile,omitempty"`
+	Report      string       `json:"report,omitempty"`
 }
 
 func messages(ms []api.Message) []message {
@@ -183,6 +188,7 @@ func esbuild_build(optionsJSON *C.char) *C.char {
 		MinifyWhitespace:  o.Minify,
 		MinifyIdentifiers: o.Minify,
 		MinifySyntax:      o.Minify,
+		Metafile:          o.Metafile,
 	})
 	files := make([]outputFile, 0, len(r.OutputFiles))
 	for _, f := range r.OutputFiles {
@@ -192,6 +198,23 @@ func esbuild_build(optionsJSON *C.char) *C.char {
 		OutputFiles: files,
 		Errors:      messages(r.Errors),
 		Warnings:    messages(r.Warnings),
+		Metafile:    string(r.Metafile),
+	})
+}
+
+//export esbuild_analyze_metafile
+func esbuild_analyze_metafile(metafile *C.char, optionsJSON *C.char) *C.char {
+	o, err := parse(optionsJSON)
+	if err != nil {
+		return fail(err)
+	}
+	r := api.AnalyzeMetafile(
+		C.GoString(metafile),
+		api.AnalyzeMetafileOptions{
+			Verbose: o.Verbose,
+		})
+	return cstring(result{
+		Report: string(r),
 	})
 }
 
