@@ -28,6 +28,12 @@
   (str/trim (:out (p/shell {:out :string :dir dir}
                            "go list -m -f {{.Version}} github.com/evanw/esbuild"))))
 
+(defn source-hash []
+  (let [md (java.security.MessageDigest/getInstance "SHA-256")]
+    (doseq [f ["shim.go" "go.mod" "go.sum"]]
+      (.update md (fs/read-all-bytes (fs/path dir f))))
+    (subs (format "%064x" (BigInteger. 1 (.digest md))) 0 16)))
+
 (defn host-platform []
   (let [os (str/lower-case (System/getProperty "os.name"))
         arch (System/getProperty "os.arch")]
@@ -37,7 +43,7 @@
          "-"
          (if (#{"aarch64" "arm64"} arch) "aarch64" "x86_64"))))
 
-(defn build-target [{:keys [platform lib goos goarch cc]} version]
+(defn build-target [{:keys [platform lib goos goarch cc]} version hash]
   (let [out (fs/path "resources" "babashka" "esbuild" platform lib)
         host? (= platform (host-platform))]
     (fs/delete-tree (fs/parent (fs/path dir out)))
@@ -47,7 +53,8 @@
               :extra-env (cond-> {"CGO_ENABLED" "1" "GOOS" goos "GOARCH" goarch}
                            (not host?) (assoc "CC" (str/join " " cc)))}
              "go" "build" "-buildmode=c-shared"
-             "-ldflags" (str "-s -w -X main.esbuildVersion=" version)
+             "-ldflags" (str "-s -w -X main.esbuildVersion=" version
+                             " -X main.sourceHash=" hash)
              "-o" (str out) "shim.go")
     (fs/delete-if-exists (fs/path dir (str/replace (str out) #"\.\w+$" ".h")))
     (println " " (format "%.1f MB" (/ (fs/size (fs/path dir out)) 1048576.0)))))
@@ -68,7 +75,8 @@
     (println "--all needs zig for the linux and windows targets: brew install zig")
     (System/exit 1))
   (let [version (esbuild-version)
+        hash (source-hash)
         chosen (if all targets (filter #(= (host-platform) (:platform %)) targets))]
-    (println "esbuild" version)
-    (run! #(build-target % version) chosen)
+    (println "esbuild" version "shim" hash)
+    (run! #(build-target % version hash) chosen)
     (write-version! version)))

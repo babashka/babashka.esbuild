@@ -60,9 +60,9 @@ the library pom names them:
     bb publish:esbuild
 
 `deploy` builds the jar, and the natives jar builds any shim that is missing
-or was built from another esbuild. It refuses to deploy a jar that lacks a
-platform, carries an empty or stale shared library, or carries one it does not
-expect. Clojars keeps every version it accepts, so those checks are the last
+or was built from another esbuild or other shim sources. It refuses to deploy a
+jar that lacks a platform, carries an empty or stale shared library, or carries
+one it does not expect. Clojars keeps every version it accepts, so those checks are the last
 line before it is permanent.
 
 Use `bb install:libesbuild` for a local m2 install instead.

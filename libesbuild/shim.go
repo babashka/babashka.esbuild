@@ -132,6 +132,9 @@ func parse(optionsJSON *C.char) (options, error) {
 // -ldflags "-X main.esbuildVersion=$(go list -m -f '{{.Version}}' github.com/evanw/esbuild)".
 var esbuildVersion = "unknown"
 
+// sourceHash is set at build time to a hash of shim.go, go.mod and go.sum.
+var sourceHash = "unknown"
+
 //export esbuild_version
 func esbuild_version() *C.char {
 	return C.CString(esbuildVersion)
