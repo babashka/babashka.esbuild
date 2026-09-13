@@ -38,7 +38,7 @@
     (-> result (assoc :outputs (:outputFiles result)) (dissoc :outputFiles))))
 
 (defn analyze-metafile
-  "Returns analyis report as string for metafile returned by [[build]]."
+  "Returns analyis report in map under `:report` for `metafile` returned by [[build]]."
   ([metafile] (analyze-metafile metafile nil))
   ([metafile opts]
    (-> (internal/take-result (internal/-analyze-metafile metafile (internal/encode opts)))
