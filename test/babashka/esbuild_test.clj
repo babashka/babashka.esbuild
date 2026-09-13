@@ -2,7 +2,7 @@
   (:require [babashka.esbuild :as esbuild]
             [babashka.esbuild.test-report]
             [babashka.fs :as fs]
-            [cheshire.core :as json]
+            [babashka.json :as json]
             [clojure.string :as str]
             [clojure.test :refer [deftest is testing]]))
 
@@ -96,7 +96,7 @@
                             "inputs" {"target/esbuild-metafile-test/util.js" {"bytesInOutput" 21}
                                       "target/esbuild-metafile-test/main.js" {"bytesInOutput" 22}}
                             "bytes" 143}}}
-               (json/decode metafile))
+               (json/read-str metafile {:key-fn identity}))
             "metafile")
         (is (= 1 (count outputs)) "outputs sanity test")
         (let [{:keys [report]} (esbuild/analyze-metafile metafile)]
