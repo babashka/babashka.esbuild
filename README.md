@@ -12,6 +12,10 @@ This library runs on babashka or on the JVM through
 
 Experimental. The API may change as we gather feedback.
 
+## Projects using babashka.esbuild
+
+- [cljdoc](https://cljdoc.org) ([source](https://github.com/cljdoc/cljdoc/blob/master/script/compile_js.clj))
+
 ## Install
 
 Add the library to `bb.edn` or `deps.edn`:
