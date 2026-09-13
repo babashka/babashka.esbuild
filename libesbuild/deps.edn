@@ -1,6 +1,7 @@
 {:paths ["resources"]
  :aliases
- {:build {:deps {io.github.clojure/tools.build {:mvn/version "0.10.9"}
+ {:build {:paths ["." "../bb"]
+          :deps {io.github.clojure/tools.build {:mvn/version "0.10.9"}
                  slipset/deps-deploy {:mvn/version "0.2.5"}}
           :jvm-opts ["-Dslf4j.internal.verbosity=WARN"]
           :ns-default build}}}

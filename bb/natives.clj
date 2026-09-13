@@ -5,7 +5,8 @@
   bb natives --all  cross compiles every platform, needs zig"
   (:require [babashka.fs :as fs]
             [babashka.process :as p]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [shim]))
 
 (def targets
   "Every platform in the libesbuild jar. The darwin C compilers come with
@@ -27,12 +28,6 @@
 (defn esbuild-version []
   (str/trim (:out (p/shell {:out :string :dir dir}
                            "go list -m -f {{.Version}} github.com/evanw/esbuild"))))
-
-(defn source-hash []
-  (let [md (java.security.MessageDigest/getInstance "SHA-256")]
-    (doseq [f ["shim.go" "go.mod" "go.sum"]]
-      (.update md (fs/read-all-bytes (fs/path dir f))))
-    (subs (format "%064x" (BigInteger. 1 (.digest md))) 0 16)))
 
 (defn host-platform []
   (let [os (str/lower-case (System/getProperty "os.name"))
@@ -75,7 +70,7 @@
     (println "--all needs zig for the linux and windows targets: brew install zig")
     (System/exit 1))
   (let [version (esbuild-version)
-        hash (source-hash)
+        hash (shim/source-hash dir)
         chosen (if all targets (filter #(= (host-platform) (:platform %)) targets))]
     (println "esbuild" version "shim" hash)
     (run! #(build-target % version hash) chosen)

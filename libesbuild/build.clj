@@ -2,7 +2,8 @@
   (:require [clojure.edn :as edn]
             [clojure.string :as str]
             [clojure.tools.build.api :as b]
-            [deps-deploy.deps-deploy :as dd]))
+            [deps-deploy.deps-deploy :as dd]
+            [shim]))
 
 (def lib 'io.github.babashka/libesbuild)
 (def version
@@ -33,14 +34,7 @@
     "babashka/esbuild/linux-x86_64/libesbuild.so"
     "babashka/esbuild/windows-x86_64/esbuild.dll"})
 
-(def source-hash
-  (delay
-    (let [{:keys [exit out]} (b/process {:command-args ["bb" "-e" "(require 'natives) (print (natives/source-hash))"]
-                                         :dir ".."
-                                         :out :capture})]
-      (when-not (zero? exit)
-        (throw (ex-info "bb could not compute the shim source hash" {:exit exit})))
-      (str/trim out))))
+(def source-hash (shim/source-hash "."))
 
 (defn- built-from-sources?
   "The esbuild version and the shim source hash are linked into each shared
@@ -49,7 +43,7 @@
   (with-open [in in]
     (let [s (slurp in :encoding "ISO-8859-1")]
       (and (str/includes? s esbuild-version)
-           (str/includes? s @source-hash)))))
+           (str/includes? s source-hash)))))
 
 (defn- natives-ready? []
   (every? (fn [n]
@@ -103,11 +97,11 @@
                                 shared-libraries))]
         (when (seq stale)
           (throw (ex-info (str "these shared libraries were not built from esbuild "
-                               esbuild-version " and shim sources " @source-hash ": "
+                               esbuild-version " and shim sources " source-hash ": "
                                (str/join ", " stale)
                                "\nDelete libesbuild/resources and run bb natives --all")
                           {:stale stale :expected esbuild-version
-                           :source-hash @source-hash})))))))
+                           :source-hash source-hash})))))))
 
 (defn clean [_]
   (b/delete {:path "target"})
