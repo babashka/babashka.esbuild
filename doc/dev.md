@@ -16,7 +16,7 @@ Go API. `libesbuild/shim.go` wraps the API in five C functions, compiled with
 char *esbuild_version(void);
 char *esbuild_transform(const char *code, const char *options_json);
 char *esbuild_build(const char *options_json);
-char *esbuild_analyze_metafile(const char *metafile, const char *options-json);
+char *esbuild_analyze_metafile(const char *metafile, const char *options_json);
 void  esbuild_free(char *p);
 ```
 
