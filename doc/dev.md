@@ -56,8 +56,12 @@ the library pom names them:
 
     export CLOJARS_USERNAME=<user>
     export CLOJARS_PASSWORD=<token from https://clojars.org/tokens>
-    bb publish:libesbuild
+    bb publish:libesbuild --bump
     bb publish:esbuild
+
+`libesbuild/version.edn` holds the esbuild version and the shim number.
+`--bump` raises the shim number, or starts at 1 for a new esbuild. After the
+deploy it pins the new version in `deps.edn`, commits and pushes.
 
 `deploy` builds the jar, and the natives jar builds any shim that is missing
 or was built from another esbuild or other shim sources. It refuses to deploy a
