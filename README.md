@@ -76,7 +76,7 @@ Use kebab-case keywords for option names. Enum values can also be keywords.
 `:entry-points` reaches esbuild as `entryPoints`.
 
 Optionally specify `:metafile true` to generate `:metafile` metadata about `build`.
-Generate a text report on this json string value via `analyze-metafile`:
+Generate a text report on this JSON string value via `analyze-metafile`:
 
 ```clojure
 (def build-result (esbuild/build {:entry-points ["foobar-main.tsx"] :bundle true :metafile true}))
