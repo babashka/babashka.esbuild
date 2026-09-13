@@ -1,4 +1,4 @@
-{:paths ["script"]
+{:paths ["bb"]
  :deps {io.github.babashka/esbuild {:local/root "."}
         io.github.babashka/libesbuild {:local/root "libesbuild"}}
  :tasks

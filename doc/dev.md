@@ -76,5 +76,5 @@ Use `bb install:libesbuild` for a local m2 install instead.
 The root and `libesbuild` are separate projects that both name their build
 namespace `build`, so lint them apart:
 
-    clj-kondo --lint src test examples script build.clj
+    clj-kondo --lint src test examples bb build.clj
     clj-kondo --lint libesbuild/build.clj
