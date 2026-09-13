@@ -56,13 +56,17 @@ the library pom names them:
 
     export CLOJARS_USERNAME=<user>
     export CLOJARS_PASSWORD=<token from https://clojars.org/tokens>
-    bb publish:libesbuild
+    bb publish:libesbuild --bump
     bb publish:esbuild
 
+`libesbuild/version.edn` holds the esbuild version and the shim number.
+`--bump` raises the shim number, or starts at 1 for a new esbuild. After the
+deploy it pins the new version in `deps.edn`, commits and pushes.
+
 `deploy` builds the jar, and the natives jar builds any shim that is missing
-or was built from another esbuild. It refuses to deploy a jar that lacks a
-platform, carries an empty or stale shared library, or carries one it does not
-expect. Clojars keeps every version it accepts, so those checks are the last
+or was built from another esbuild or other shim sources. It refuses to deploy a
+jar that lacks a platform, carries an empty or stale shared library, or carries
+one it does not expect. Clojars keeps every version it accepts, so those checks are the last
 line before it is permanent.
 
 Use `bb install:libesbuild` for a local m2 install instead.
@@ -72,5 +76,5 @@ Use `bb install:libesbuild` for a local m2 install instead.
 The root and `libesbuild` are separate projects that both name their build
 namespace `build`, so lint them apart:
 
-    clj-kondo --lint src test examples script build.clj
+    clj-kondo --lint src test examples bb build.clj
     clj-kondo --lint libesbuild/build.clj

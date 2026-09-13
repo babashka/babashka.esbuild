@@ -5,7 +5,8 @@
   bb natives --all  cross compiles every platform, needs zig"
   (:require [babashka.fs :as fs]
             [babashka.process :as p]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [shim]))
 
 (def targets
   "Every platform in the libesbuild jar. The darwin C compilers come with
@@ -37,7 +38,7 @@
          "-"
          (if (#{"aarch64" "arm64"} arch) "aarch64" "x86_64"))))
 
-(defn build-target [{:keys [platform lib goos goarch cc]} version]
+(defn build-target [{:keys [platform lib goos goarch cc]} version hash]
   (let [out (fs/path "resources" "babashka" "esbuild" platform lib)
         host? (= platform (host-platform))]
     (fs/delete-tree (fs/parent (fs/path dir out)))
@@ -47,7 +48,8 @@
               :extra-env (cond-> {"CGO_ENABLED" "1" "GOOS" goos "GOARCH" goarch}
                            (not host?) (assoc "CC" (str/join " " cc)))}
              "go" "build" "-buildmode=c-shared"
-             "-ldflags" (str "-s -w -X main.esbuildVersion=" version)
+             "-ldflags" (str "-s -w -X main.esbuildVersion=" version
+                             " -X main.sourceHash=" hash)
              "-o" (str out) "shim.go")
     (fs/delete-if-exists (fs/path dir (str/replace (str out) #"\.\w+$" ".h")))
     (println " " (format "%.1f MB" (/ (fs/size (fs/path dir out)) 1048576.0)))))
@@ -68,7 +70,8 @@
     (println "--all needs zig for the linux and windows targets: brew install zig")
     (System/exit 1))
   (let [version (esbuild-version)
+        hash (shim/source-hash dir)
         chosen (if all targets (filter #(= (host-platform) (:platform %)) targets))]
-    (println "esbuild" version)
-    (run! #(build-target % version) chosen)
+    (println "esbuild" version "shim" hash)
+    (run! #(build-target % version hash) chosen)
     (write-version! version)))

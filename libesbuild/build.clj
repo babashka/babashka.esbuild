@@ -1,10 +1,14 @@
 (ns build
-  (:require [clojure.string :as str]
+  (:require [clojure.edn :as edn]
+            [clojure.string :as str]
             [clojure.tools.build.api :as b]
-            [deps-deploy.deps-deploy :as dd]))
+            [deps-deploy.deps-deploy :as dd]
+            [shim]))
 
 (def lib 'io.github.babashka/libesbuild)
-(def version "0.28.2-3")
+(def version
+  (let [{:keys [esbuild shim]} (edn/read-string (slurp "version.edn"))]
+    (str esbuild "-" shim)))
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
 (def basis (delay (b/create-basis {:project "deps.edn"})))
@@ -30,19 +34,23 @@
     "babashka/esbuild/linux-x86_64/libesbuild.so"
     "babashka/esbuild/windows-x86_64/esbuild.dll"})
 
-(defn- built-from-esbuild?
-  "The esbuild version is linked into each shared library, so a stale binary
-  from an earlier release does not carry the one this jar claims."
+(def source-hash (shim/source-hash "."))
+
+(defn- built-from-sources?
+  "The esbuild version and the shim source hash are linked into each shared
+  library, so a stale binary does not carry the ones this jar claims."
   [in]
   (with-open [in in]
-    (str/includes? (slurp in :encoding "ISO-8859-1") esbuild-version)))
+    (let [s (slurp in :encoding "ISO-8859-1")]
+      (and (str/includes? s esbuild-version)
+           (str/includes? s source-hash)))))
 
 (defn- natives-ready? []
   (every? (fn [n]
             (let [f (java.io.File. (str "resources/" n))]
               (and (.exists f)
                    (pos? (.length f))
-                   (built-from-esbuild? (java.io.FileInputStream. f)))))
+                   (built-from-sources? (java.io.FileInputStream. f)))))
           shared-libraries))
 
 (defn- ensure-natives! []
@@ -84,14 +92,16 @@
                              (str/join ", " unexpected)
                              "\nDelete libesbuild/resources and run bb natives --all")
                         {:unexpected unexpected})))
-      (let [stale (sort (remove #(built-from-esbuild?
+      (let [stale (sort (remove #(built-from-sources?
                                   (.getInputStream jar (.getEntry jar %)))
                                 shared-libraries))]
         (when (seq stale)
           (throw (ex-info (str "these shared libraries were not built from esbuild "
-                               esbuild-version ": " (str/join ", " stale)
+                               esbuild-version " and shim sources " source-hash ": "
+                               (str/join ", " stale)
                                "\nDelete libesbuild/resources and run bb natives --all")
-                          {:stale stale :expected esbuild-version})))))))
+                          {:stale stale :expected esbuild-version
+                           :source-hash source-hash})))))))
 
 (defn clean [_]
   (b/delete {:path "target"})
