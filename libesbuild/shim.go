@@ -69,7 +69,7 @@ type options struct {
 	Alias       map[string]string `json:"alias"`
 	Metafile    bool              `json:"metafile"`
 	// analyze metafile
-	Verbose     bool              `json:"verbose"`
+	Verbose bool `json:"verbose"`
 }
 
 type message struct {
@@ -215,7 +215,7 @@ func esbuild_analyze_metafile(metafile *C.char, optionsJSON *C.char) *C.char {
 		})
 	return cstring(result{
 		Report: string(r),
-	});
+	})
 }
 
 //export esbuild_free
