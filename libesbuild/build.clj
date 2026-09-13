@@ -1,14 +1,12 @@
 (ns build
-  (:require [clojure.edn :as edn]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.tools.build.api :as b]
             [deps-deploy.deps-deploy :as dd]
-            [shim]))
+            [shim]
+            [versions]))
 
 (def lib 'io.github.babashka/libesbuild)
-(def version
-  (let [{:keys [esbuild shim]} (edn/read-string (slurp "version.edn"))]
-    (str esbuild "-" shim)))
+(def version (versions/libesbuild "."))
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
 (def basis (delay (b/create-basis {:project "deps.edn"})))
