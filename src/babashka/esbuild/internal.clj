@@ -42,6 +42,7 @@
 (defcfn -version "esbuild_version" [] :pointer)
 (defcfn -transform "esbuild_transform" [:string :string] :pointer)
 (defcfn -build "esbuild_build" [:string] :pointer)
+(defcfn -analyze-metafile "esbuild_analyze_metafile" [:string :string] :pointer)
 (defcfn -free "esbuild_free" [:pointer] :void)
 
 (defn take-result [p]

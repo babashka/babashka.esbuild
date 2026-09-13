@@ -9,13 +9,14 @@
 ## C interface
 
 Esbuild releases executables. This project builds a shared library from its
-Go API. `libesbuild/shim.go` wraps the API in four C functions, compiled with
+Go API. `libesbuild/shim.go` wraps the API in five C functions, compiled with
 `-buildmode=c-shared`:
 
 ```c
 char *esbuild_version(void);
 char *esbuild_transform(const char *code, const char *options_json);
 char *esbuild_build(const char *options_json);
+char *esbuild_analyze_metafile(const char *metafile, const char *options-json);
 void  esbuild_free(char *p);
 ```
 

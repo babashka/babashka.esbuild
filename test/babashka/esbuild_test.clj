@@ -1,6 +1,8 @@
 (ns babashka.esbuild-test
   (:require [babashka.esbuild :as esbuild]
+            [babashka.esbuild.test-report]
             [babashka.fs :as fs]
+            [cheshire.core :as json]
             [clojure.string :as str]
             [clojure.test :refer [deftest is testing]]))
 
@@ -57,3 +59,56 @@
                  (catch Exception e e))]
       (is (str/includes? (ex-message e) "Could not resolve"))
       (is (= :babashka.esbuild/error (:type (ex-data e)))))))
+
+(deftest analyze-metafile-error-test
+  (is (= {} (esbuild/analyze-metafile "nonsense")))
+  (is (= {} (esbuild/analyze-metafile "{\"inputs\"")) "bad json")
+  (is (= {} (esbuild/analyze-metafile "")))
+  (let [e (try (esbuild/analyze-metafile "" {:verbose {:bad :opt}}) (catch Exception e e))]
+    (is (= "json: cannot unmarshal object into Go struct field options.verbose of type bool" (ex-message e)))
+    (is (= :babashka.esbuild/error (:type (ex-data e))))))
+
+(deftest build-metafile-test
+  (let [dir "target/esbuild-metafile-test"
+        entry (fs/file dir "main.js")]
+    (fs/delete-tree dir)
+    (fs/create-dirs dir)
+    (spit (fs/file dir "util.js") "export const two = () => 2\n")
+    (spit entry "import { two } from './util.js'\nconsole.log(two())\n")
+    (testing "metafile is returned"
+      (let [{:keys [outputs metafile]} (esbuild/build {:entry-points [(str entry)]
+                                                       :bundle true
+                                                       :metafile true})]
+        (is (= {"inputs" {"target/esbuild-metafile-test/util.js"
+                          {"bytes" 27
+                           "format" "esm"
+                           "imports" []}
+                          "target/esbuild-metafile-test/main.js"
+                          {"bytes" 51
+                           "format" "esm"
+                           "imports" [{"path" "target/esbuild-metafile-test/util.js"
+                                       "kind" "import-statement"
+                                       "original" "./util.js"}]}}
+                "outputs" {"main.js"
+                           {"imports" []
+                            "exports"[] "entryPoint"
+                            "target/esbuild-metafile-test/main.js"
+                            "inputs" {"target/esbuild-metafile-test/util.js" {"bytesInOutput" 21}
+                                      "target/esbuild-metafile-test/main.js" {"bytesInOutput" 22}}
+                            "bytes" 143}}}
+               (json/decode metafile))
+            "metafile")
+        (is (= 1 (count outputs)) "outputs sanity test")
+        (let [{:keys [report]} (esbuild/analyze-metafile metafile)]
+          (is (= [""
+                  "  main.js                                  143b   100.0%"
+                  "   ├ target/esbuild-metafile-test/main.js   22b    15.4%"
+                  "   └ target/esbuild-metafile-test/util.js   21b    14.7%"]
+                 (str/split-lines report)) "analysis report"))
+        (let [{:keys [report]} (esbuild/analyze-metafile metafile {:verbose true})]
+          (is (= [""
+                  "  main.js ───────────────────────────────── 143b ── 100.0%"
+                  "   ├ target/esbuild-metafile-test/main.js ── 22b ─── 15.4%"
+                  "   └ target/esbuild-metafile-test/util.js ── 21b ─── 14.7%"
+                  "      └ target/esbuild-metafile-test/main.js"]
+                 (str/split-lines report)) "verbose analysis report"))))))

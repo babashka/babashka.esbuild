@@ -21,7 +21,10 @@
          '[squint.compiler :as squint])
 
 (def src-dir "examples/squint-app/src")
-(def out-dir (fs/create-temp-dir {:prefix "squint-app"}))
+(def out-dir "target/example-squint-app")
+
+(fs/delete-tree out-dir)
+(fs/create-dirs out-dir)
 
 (def squint-js
   "src/squint of the squint checkout, where core.js and its friends live."
@@ -47,16 +50,23 @@
 (compile-cljs)
 (println "compiled:" (mapv #(str (fs/file-name %)) (fs/glob out-dir "*.mjs")))
 
-(def bundle
-  (-> (esbuild/build {:entry-points [(str (fs/path out-dir "app.main.mjs"))]
-                      :bundle true
-                      :format :esm
-                      :target :es2020
-                      :minify true
-                      :alias {"squint-cljs" squint-js}})
-      :outputs first :contents))
+(def build-result 
+  (esbuild/build {:entry-points [(str (fs/path out-dir "app.main.mjs"))]
+                  :bundle true
+                  :format :esm
+                  :target :es2020
+                  :minify true
+                  :metafile true
+                  :alias {"squint-cljs" squint-js}}))
+
+(def bundle (-> build-result :outputs first :contents))
+(def metafile (-> build-result :metafile))
 
 (println "bundle:" (count bundle) "bytes")
+
+(println "metafile analysis:")
+(println (:report (esbuild/analyze-metafile metafile {:verbose true})))
+
 (spit "bundle.mjs" bundle)
 (println "node bundle.mjs:")
 (print (:out (p/shell {:out :string} "node" "bundle.mjs")))
