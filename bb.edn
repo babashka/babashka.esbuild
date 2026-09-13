@@ -8,8 +8,9 @@
   publish:libesbuild {:doc "Deploys libesbuild to Clojars, --bump for a new version"
                       :requires ([tasks])
                       :exec-fn tasks/publish-libesbuild}
-  publish:esbuild {:doc "Deploys babashka.esbuild to Clojars"
-                   :task (shell "clojure -T:build deploy")}
+  publish:esbuild {:doc "Deploys babashka.esbuild to Clojars, --bump for a new version"
+                   :requires ([tasks])
+                   :exec-fn tasks/publish-esbuild}
   install:libesbuild {:doc "Installs libesbuild into the local m2"
                       :task (shell {:dir "libesbuild"} "clojure -T:build install")}
   test {:doc "Runs the tests on babashka"

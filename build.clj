@@ -1,10 +1,11 @@
 (ns build
   (:require [clojure.string :as str]
             [clojure.tools.build.api :as b]
-            [deps-deploy.deps-deploy :as dd]))
+            [deps-deploy.deps-deploy :as dd]
+            [versions]))
 
 (def lib 'io.github.babashka/esbuild)
-(def version "0.1.1")
+(def version (versions/esbuild "."))
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
 (def basis (delay (b/create-basis {:project "deps.edn"})))
