@@ -1,5 +1,7 @@
 # babashka.esbuild
 
+[![Clojars Project](https://img.shields.io/clojars/v/org.babashka/esbuild.svg)](https://clojars.org/org.babashka/esbuild)
+
 Use [esbuild](https://esbuild.github.io/) from
 [babashka](https://github.com/babashka/babashka) and the JVM.
 
