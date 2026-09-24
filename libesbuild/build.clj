@@ -5,7 +5,7 @@
             [shim]
             [versions]))
 
-(def lib 'io.github.babashka/libesbuild)
+(def lib 'org.babashka/libesbuild)
 (def version (versions/libesbuild "."))
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
