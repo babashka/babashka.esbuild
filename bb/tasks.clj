@@ -15,7 +15,7 @@
 (defn- pin-libesbuild! [version]
   (spit "deps.edn"
         (str/replace (slurp "deps.edn")
-                     #"(io\.github\.babashka/libesbuild \{:mvn/version \")[^\"]+"
+                     #"(org\.babashka/libesbuild \{:mvn/version \")[^\"]+"
                      (str "$1" version))))
 
 (defn publish-libesbuild

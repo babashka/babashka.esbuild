@@ -21,11 +21,10 @@ Experimental. The API may change as we gather feedback.
 Add the library to `bb.edn` or `deps.edn`:
 
 ```clojure
-{:deps {io.github.babashka/babashka.esbuild
-        {:git/sha "f9e39b6914c9028b8224ffa4ea1a9c781f09f3ef"}}}
+{:deps {org.babashka/esbuild {:mvn/version "0.1.1"}}}
 ```
 
-That pulls in `io.github.babashka/libesbuild`, which carries esbuild for
+That pulls in `org.babashka/libesbuild`, which carries esbuild for
 macOS, Linux and Windows on x86_64 and aarch64. See [Distribution](#distribution).
 
 `babashka.ffi` comes with it. Babashka includes it as well.
@@ -34,7 +33,7 @@ On the JVM, start with `--enable-native-access=ALL-UNNAMED`.
 
 ## Distribution
 
-`io.github.babashka/libesbuild` is a jar of esbuild shared libraries, one per
+`org.babashka/libesbuild` is a jar of esbuild shared libraries, one per
 platform, published to Clojars. Its version is the esbuild version it wraps
 plus a shim number, so `0.28.2-2` holds esbuild v0.28.2. `babashka.esbuild`
 depends on it, so a release of this library pins one esbuild.

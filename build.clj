@@ -4,7 +4,7 @@
             [deps-deploy.deps-deploy :as dd]
             [versions]))
 
-(def lib 'io.github.babashka/esbuild)
+(def lib 'org.babashka/esbuild)
 (def version (versions/esbuild "."))
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" (name lib) version))

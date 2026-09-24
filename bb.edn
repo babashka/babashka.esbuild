@@ -1,6 +1,6 @@
 {:paths ["bb"]
- :deps {io.github.babashka/esbuild {:local/root "."}
-        io.github.babashka/libesbuild {:local/root "libesbuild"}}
+ :deps {org.babashka/esbuild {:local/root "."}
+        org.babashka/libesbuild {:local/root "libesbuild"}}
  :tasks
  {natives {:doc "Builds the shim into libesbuild/resources"
            :requires ([natives])
